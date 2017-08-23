@@ -1,0 +1,39 @@
+/**
+     *时间颗粒度
+     * @param parmId
+     * @return
+     * @throws ParseException
+     */
+    @RequestMapping(value = "/queryBrandParamByTime",method = RequestMethod.GET)
+    public TogHttpResponse queryBrandParamByTime(@RequestParam(value = "parmId",defaultValue = "2",required = false) long parmId,
+                                          @RequestParam long brandId)  throws ParseException {
+        String minu = "";
+        BrandParm brandParms = parmServiceApi.querybrandParm(parmId,brandId);
+        if(brandParms!=null){
+            minu = brandParms.getValue();
+            if(minu==null || "".equals(minu)){
+                Parm parm= parmServiceApi.getParm(parmId);
+                minu = parm.getValue();
+            }
+        }else{
+            Parm parm= parmServiceApi.getParm(parmId);
+            minu = parm.getValue();
+        }
+
+        List<String> BrandMin = new ArrayList<String>();
+        SimpleDateFormat sdf = new SimpleDateFormat("mm");
+        String date = DateUtil.NowDateW();
+        date+= " 00:00:00";
+        Date nowDate = DateUtil.StrToDate(date);
+        int Min = 60;
+        int brandMin =Integer.parseInt(minu);
+        Calendar nowTime = new GregorianCalendar();
+        nowTime.setTime(nowDate);
+        for (int i = 0; i<Min/brandMin; i ++){
+            String mm = sdf.format(nowTime.getTime());
+            BrandMin.add(mm);
+            nowTime.add(Calendar.MINUTE, brandMin);
+            nowTime.setTime( nowTime.getTime());
+        }
+        return TogHttpResponse.SUCCESS(BrandMin);
+    }
