@@ -1,0 +1,40 @@
+
+        @RequestMapping(value = "/paramSet", method = RequestMethod.POST)
+        public TogHttpResponse paramSet(@RequestBody ParmDTO parmDTO){
+            boolean flag = true;
+            parmServiceApi.deleteBrandParamByBrandId(parmDTO.getBrandParmList().get(0).getBrandId());
+            for (BrandParm brandParm: parmDTO.getBrandParmList()) {
+                Brand brand = brandServiceApi.getBrand(brandParm.getBrandId());
+                brandParm.setParmId(brandParm.getParmId());
+                brandParm.setTraderId(brand.getTraderId()); //商家
+                brandParm.setBrandId(brandParm.getBrandId()); //品牌
+                brandParm.setValue(brandParm.getValue());
+                brandParm.setValueType(brandParm.getValueType());
+                BrandParm brandParm1 = parmServiceApi.addParamBrand(brandParm);
+                if (brandParm1 == null || brandParm1.getId() <= 0) {
+                    flag = false;
+                    return TogHttpResponse.FAILED("更新失败！");
+                }
+            }
+             return TogHttpResponse.SUCCESS(flag);
+        }
+
+    /**
+     *
+     * @param brandId
+     * @return
+     */
+    @RequestMapping(value = "/getBrandParamByBrandId", method = RequestMethod.GET)
+    public TogHttpResponse getBrandParamByBrandId(@RequestParam long brandId){
+        List<Parm> parmList = parmServiceApi.queryParam();//所有参数
+        List<BrandParm> brandParmList = parmServiceApi.getBrandParmById(brandId);//品牌有的参数
+        for (Parm parm:parmList) {
+            for (BrandParm brandParm:brandParmList) {
+                if(parm.getId()==brandParm.getParmId()){
+                    parm.setHave(true);
+                    parm.setValue(brandParm.getValue());
+                }
+            }
+        }
+        return TogHttpResponse.SUCCESS(parmList);
+    }
