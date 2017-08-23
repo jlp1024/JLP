@@ -1,0 +1,11 @@
+ @RequestMapping(value = "/getFreeRoomList", method = RequestMethod.GET)
+    public TogHttpResponse getFreeRoomList(@RequestParam long storeId) {
+        List<Room> list = roomServiceApi.getFreeRoomList(storeId);
+        for (Room r :list) {
+            if(r.getBedImage()==null||"".equals(r.getBedImage())){
+                r.setBedImage("bed_"+r.getBedCount()+".jpg");
+            }
+        }
+        return TogHttpResponse.SUCCESS(list);
+    }
+}
